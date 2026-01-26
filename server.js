@@ -57,10 +57,45 @@ app.post("/items", async (req, res) => {
 });
 
 // TODO (Member 2): Implement update route for items.
-// app.put("/items/:id", (req, res) => {});
+app.put("/items/:id", async (req, res) => {
+  const { id } = req.params;
+  const {
+    itemName,
+    itemCategory,
+    locationDescription,
+    healthStatus,
+  } = req.body;
+
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const [results] = await connection.execute(
+      "UPDATE itemsForCollection (itemName, itemCategory, locationDescription, healthStatus) SET itemName = ?, itemCategory = ?, locationDescription = ?, healthStatus = ? WHERE id = ?", 
+      [itemName, itemCategory, locationDescription, healthStatus]
+    );
+    await connection.end();
+    return res.status(201).json({ id: results.insertId});
+  } catch (error) {
+    console.error("Database error updating item:", error);
+    return res.status(500).json({ message: "Failed to update item."});
+  }
+});
 
 // TODO (Member 2): Implement delete route for items.
-// app.delete("/items/:id", (req, res) => {});
+app.delete("/items/:id", async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const [results] = await connection.execute(
+      "DELETE FROM itemsForCollection WHERE id=?", [id]
+    );
+    await connection.end();
+    return res.status(201).json({ id: results.insertId});
+  } catch (error) {
+    console.error("Database error deleting item:", error);
+    return res.status(500).json({ message: "Failed to delete item."});
+  }
+});
 
 app.listen(port, () => {
   console.log(`GreenRecycle SG server running on port ${port}`);
