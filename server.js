@@ -21,82 +21,75 @@ const dbConfig = {
 };
 
 app.get("/items", async (req, res) => {
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    const [rows] = await connection.execute(
-      "SELECT id, itemName, itemCategory, locationDescription, healthStatus FROM ItemsForCollection"
-    );
-    await connection.end();
-    return res.status(200).json(rows);
-  } catch (error) {
-    console.error("Database error fetching items:", error);
-    return res.status(500).json({ message: "Failed to fetch items." });
-  }
+	try {
+		const connection = await mysql.createConnection(dbConfig);
+		const [rows] = await connection.execute(
+			"SELECT id, itemName, itemCategory, locationDescription, healthStatus FROM ItemsForCollection"
+		);
+		await connection.end();
+		return res.status(200).json(rows);
+	} catch (error) {
+		console.error("Database error fetching items:", error);
+		return res.status(500).json({ message: "Failed to fetch items." });
+	}
 });
 
 app.post("/items", async (req, res) => {
-  const {
-    itemName,
-    itemCategory,
-    locationDescription,
-    healthStatus,
-  } = req.body;
+	const { itemName, itemCategory, locationDescription, healthStatus } =
+		req.body;
 
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    const [results] = await connection.execute(
-      "INSERT INTO ItemsForCollection (itemName, itemCategory, locationDescription, healthStatus) VALUES (?, ?, ?, ?)",
-      [itemName, itemCategory, locationDescription, healthStatus]
-    );
-    await connection.end();
-    return res.status(201).json({ id: results.insertId });
-  } catch (error) {
-    console.error("Database error creating item:", error);
-    return res.status(500).json({ message: "Failed to create item." });
-  }
+	try {
+		const connection = await mysql.createConnection(dbConfig);
+		const [results] = await connection.execute(
+			"INSERT INTO ItemsForCollection (itemName, itemCategory, locationDescription, healthStatus) VALUES (?, ?, ?, ?)",
+			[itemName, itemCategory, locationDescription, healthStatus]
+		);
+		await connection.end();
+		return res.status(201).json({ id: results.insertId });
+	} catch (error) {
+		console.error("Database error creating item:", error);
+		return res.status(500).json({ message: "Failed to create item." });
+	}
 });
 
 // TODO (Member 2): Implement update route for items.
 app.put("/items/:id", async (req, res) => {
-  const { id } = req.params;
-  const {
-    itemName,
-    itemCategory,
-    locationDescription,
-    healthStatus,
-  } = req.body;
+	const { id } = req.params;
+	const { itemName, itemCategory, locationDescription, healthStatus } =
+		req.body;
 
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    const [results] = await connection.execute(
-      "UPDATE itemsForCollection (itemName, itemCategory, locationDescription, healthStatus) SET itemName = ?, itemCategory = ?, locationDescription = ?, healthStatus = ? WHERE id = ?", 
-      [itemName, itemCategory, locationDescription, healthStatus]
-    );
-    await connection.end();
-    return res.status(201).json({ id: results.insertId});
-  } catch (error) {
-    console.error("Database error updating item:", error);
-    return res.status(500).json({ message: "Failed to update item."});
-  }
+	try {
+		const connection = await mysql.createConnection(dbConfig);
+		const [results] = await connection.execute(
+			"UPDATE ItemsForCollection SET itemName = ?, itemCategory = ?, locationDescription = ?, healthStatus = ? WHERE id = ?",
+			[itemName, itemCategory, locationDescription, healthStatus, id]
+		);
+		await connection.end();
+		return res.status(200).json({ affectedRows: results.affectedRows });
+	} catch (error) {
+		console.error("Database error updating item:", error);
+		return res.status(500).json({ message: "Failed to update item." });
+	}
 });
 
 // TODO (Member 2): Implement delete route for items.
 app.delete("/items/:id", async (req, res) => {
-  const { id } = req.params;
-  
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    const [results] = await connection.execute(
-      "DELETE FROM itemsForCollection WHERE id=?", [id]
-    );
-    await connection.end();
-    return res.status(201).json({ id: results.insertId});
-  } catch (error) {
-    console.error("Database error deleting item:", error);
-    return res.status(500).json({ message: "Failed to delete item."});
-  }
+	const { id } = req.params;
+
+	try {
+		const connection = await mysql.createConnection(dbConfig);
+		const [results] = await connection.execute(
+			"DELETE FROM ItemsForCollection WHERE id=?",
+			[id]
+		);
+		await connection.end();
+		return res.status(201).json({ id: results.insertId });
+	} catch (error) {
+		console.error("Database error deleting item:", error);
+		return res.status(500).json({ message: "Failed to delete item." });
+	}
 });
 
 app.listen(port, () => {
-  console.log(`GreenRecycle SG server running on port ${port}`);
+	console.log(`GreenRecycle SG server running on port ${port}`);
 });
